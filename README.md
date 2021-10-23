@@ -1,4 +1,4 @@
-# An Analysis of UFC Fight
+# An Analysis of UFC Fights
 An analysis of Mixed Martial Arts fights taken place under the promotion of the Ultiimate Fighting Championship (UFC).
 
 # Data
