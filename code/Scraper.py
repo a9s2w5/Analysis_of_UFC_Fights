@@ -55,6 +55,7 @@ class Scraper:
                return df
             except ValueError:
                  print("\nNo tables found!")
+                 
         elif len(urlList) == 1:
             try:
                 # Scrape the single URL and get the first table on the page
@@ -66,6 +67,7 @@ class Scraper:
                 return df
             except ValueError:
                 print("\nNo Table found!")
+                
         else:
             print("\nList has no objects!")
     
@@ -97,6 +99,7 @@ class Scraper:
               return links
             except ValueError:
                 print("\n Nothing to do!")
+                
         elif len(urlList) == 1:
             try:
                  # Get the url and convert to lxml
@@ -116,6 +119,7 @@ class Scraper:
                  return links
             except ValueError:
                 print("\nNothing to do!")
+                
         else:
             print("No pages to scrape")
             
@@ -320,7 +324,7 @@ def get_event_fight_details():
     
     # Fight detail URLs
     fight_detail_URLs = get_event_fight_detail_URLs()
-
+    
     # List of scapred DataFrames
     fight_details_dfs = []
     
@@ -329,35 +333,38 @@ def get_event_fight_details():
     
     # Scrape for the fight details from each URL
     for url in tqdm(range(len(fight_detail_URLs)), desc="Getting Fight Details: "):
-        # Get the url and convert to lxml
-        page = requests.get(fight_detail_URLs[url])
-        soup = BeautifulSoup(page.text, 'lxml')
-        soup
-    
-        # Get the title name present on the webpage
-        event__ = soup.find('h2', {'class': 'b-content__title'})
-        event = event__.text.strip()
+        try:
+            # Get the url and convert to lxml
+            page = requests.get(fight_detail_URLs[url])
+            soup = BeautifulSoup(page.text, 'lxml')
+            soup
         
-        # Get the fight details tables, joining relevant data together
-        data = pd.read_html(fight_detail_URLs[url])
-        
-        # Add the details from the third table to the first table
-        data[0][['Head',
-                'Body',
-                'Leg',
-                'Distance',
-                'Clinch',
-                'Ground']] = data[2][['Head',
-                                      'Body',
-                                      'Leg',
-                                      'Distance',
-                                      'Clinch',
-                                      'Ground']]
-        
-        # Add the event name to the dataframe
-        data[0]['Event'] = event
-        # append to list of dataframes
-        fight_details_dfs.append(data[0])
+            # Get the title name present on the webpage
+            event__ = soup.find('h2', {'class': 'b-content__title'})
+            event = event__.text.strip()
+            
+            # Get the fight details tables, joining relevant data together
+            data = pd.read_html(fight_detail_URLs[url])
+            
+            # Add the details from the third table to the first table
+            data[0][['Head',
+                    'Body',
+                    'Leg',
+                    'Distance',
+                    'Clinch',
+                    'Ground']] = data[2][['Head',
+                                          'Body',
+                                          'Leg',
+                                          'Distance',
+                                          'Clinch',
+                                          'Ground']]
+            
+            # Add the event name to the dataframe
+            data[0]['Event'] = event
+            # append to list of dataframes
+            fight_details_dfs.append(data[0])
+        except ValueError:
+            pass
                                                                                         
         
      # Concatenate all collected DataFrames
@@ -372,8 +379,6 @@ def get_event_fight_details():
     return fight_details_df
 
 #----------------------------------------------------------------------------------------
-
-
 
 
 
