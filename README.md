@@ -19,9 +19,9 @@ All tools and languages used, including packages from within each language <br>
 - Anaconda3 is installed
 
 ##### Installing Anaconda Instructions: <br>
-For Windows: https://docs.anaconda.com/anaconda/install/windows/ <br>
-For Mac: https://docs.anaconda.com/anaconda/install/mac-os/ <br>
-For Linux: https://docs.anaconda.com/anaconda/install/linux/ <br>
+**For Windows:** https://docs.anaconda.com/anaconda/install/windows/ <br>
+**For Mac**: https://docs.anaconda.com/anaconda/install/mac-os/ <br>
+**For Linux:** https://docs.anaconda.com/anaconda/install/linux/ <br>
 
 ##### Installing R & R Studio: <br>
 Instructions here: https://rstudio-education.github.io/hopr/starting.html <br>
