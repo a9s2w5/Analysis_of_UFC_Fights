@@ -2,10 +2,10 @@
 An analysis of Mixed Martial Arts fights taken place under the promotion of the Ultimate Fighting Championship (UFC).
 
 # Data
-Data for this analysis has been collected through webscraping from http://www.ufcstats.com <br>
+Data for this analysis has been collected through http://www.ufcstats.com <br>
 <br>
-In total 10,658 unique url's are scraped in the process and can take several<br>
-hours to complete depending on computer hardware and internet bandwidth.<br>
+In total 10,658 unique url's where processed, Using this program to collect the data <br>
+can take several hours to complete depending on computer hardware and internet bandwidth.<br>
     
 For my personal computer hardware / internet bandwidth combination it took:<br>
 42min 57sec to scrape and retrieve all data.<br>
