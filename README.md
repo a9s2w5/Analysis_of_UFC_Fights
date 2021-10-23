@@ -8,7 +8,7 @@ In total 10,658 unique url's where processed, Using this program to collect the 
 can take several hours to complete depending on computer hardware and internet bandwidth.<br>
     
 For my personal computer hardware / internet bandwidth combination it took:<br>
-42min 57sec to scrape and retrieve all data.<br>
+**_4hrs 9min 17sec_** to retrieve all data.<br>
 
 # Tools Used
 All tools and languages used, including packages from within each language <br>
