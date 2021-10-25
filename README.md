@@ -10,9 +10,36 @@ can take several hours to complete depending on computer hardware and internet b
 For my personal computer hardware / internet bandwidth combination it took:<br>
 **_4hrs 9min 17sec_** to retrieve all data.<br>
 <br>
-To collect the Data Normalize_Data.py can be ran which will update the data contained in the csv files.<br>
-Data is updated on the website after each new fight event.
-Running the Normalize_Data.py script will initiate these methods:<br>
+To collect the Data, Normalize_Data.py can be ran which will update the data contained in the csv files.<br>
+Data is updated on the website after each new fight event.<br>
+**Running the Normalize_Data.py script will initiate these methods:**<br>
+
+#### 1. Getting the fighter info & normalizing
+```python
+def get_fighters():
+    
+    # Get the Fighter Basic Information
+    fighters_df = scrp.get_fighters()
+    
+    # Get additional Fighter details
+    fighter_details_df = scrp.get_further_fighter_details()
+    
+    # Add a blank DOB column to the end of the DataFrame
+    columns = len(fighters_df.columns)
+    fighters_df.insert(columns,'DOB','')
+    
+    # Append DOB info to the fighters Dataframe
+    for i in range(len(fighters_df)):
+        fighters_df.loc[i, 'DOB'] = fighter_details_df['DOB'].loc[i]
+    
+    # More code below here for normalization......
+    
+    return fighters_df
+    
+# Get the figthers information and export to CSV
+fighters_df = get_fighters()
+fighters_df.to_csv('../data/fighters.csv', index=False)
+```
 
 
 # Data Info
