@@ -8,7 +8,7 @@ In total 10,658 unique url's where processed, Using this program to collect the 
 can take several hours to complete depending on computer hardware and internet bandwidth.<br>
     
 For my personal computer hardware / internet bandwidth combination it took:<br>
-**_4hrs 9min 17sec_** to retrieve all data.<br>
+**_Approx 4hrs_** to retrieve all data.<br>
 <br>
 To collect the Data, Normalize_Data.py can be ran which will update the data contained in the csv files.<br>
 Data is updated on the website after each new fight event.<br>
