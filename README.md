@@ -11,6 +11,14 @@ For my personal computer hardware / internet bandwidth combination it took:<br>
 **_4hrs 9min 17sec_** to retrieve all data.<br>
 
 # Data Info
+There are 3 Datasets contained in the Data folder. <br>
+- Fighter Information (fighters.csv)
+- Events Information (events.csv)
+- Fights Information (fight_data.csv)
+
+### The Fighter information
+This is the data information in the fighters.csv file <br>
+*_(After normalization and export but before cleaning and dealing with null/missing values)_*<br>
 
 # Tools Used
 All tools and languages used, including packages from within each language <br>
