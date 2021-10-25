@@ -18,11 +18,12 @@ There are 3 Datasets contained in the Data folder. <br>
 
 ### The Fighter information
 This is the data information in the fighters.csv file <br>
-*_(After normalization and export but before cleaning and dealing with null/missing values)_*<br>
+*_(After normalization and export but before cleaning and dealing with null/missing values)_*<br><br>
 ![Fighter Data Info](https://github.com/Jon-Flan/Analysis_of_UFC_Fights/blob/main/imgs/fighter_dtypes_info.png)
 <br>
-Fighter Table Info snippet: <br>
-
+<br>
+Fighter Table Info snippet: <br><br>
+![Fighter Table Snippet](https://github.com/Jon-Flan/Analysis_of_UFC_Fights/blob/main/imgs/fighter_info_head.png)
 
 # Tools Used
 All tools and languages used, including packages from within each language <br>
