@@ -134,7 +134,7 @@ fighters_df = get_fighters()
 fighters_df.info()
 fighters_df.dtypes
 print(fighters_df)
-fighters_df.to_csv('./data/fighters.csv', index=False)
+fighters_df.to_csv('../data/fighters.csv', index=False)
 
 #----------------------------------------------------------------------------------------
 
