@@ -1,7 +1,7 @@
 # An Analysis of UFC Fights
 An analysis of Mixed Martial Arts fights taken place under the promotion of the Ultimate Fighting Championship (UFC).
 
-# Data
+# Data Collection
 Data for this analysis has been collected through http://www.ufcstats.com <br>
 <br>
 In total 10,658 unique url's where processed, Using this program to collect the data <br>
@@ -9,6 +9,8 @@ can take several hours to complete depending on computer hardware and internet b
     
 For my personal computer hardware / internet bandwidth combination it took:<br>
 **_4hrs 9min 17sec_** to retrieve all data.<br>
+
+# Data Info
 
 # Tools Used
 All tools and languages used, including packages from within each language <br>
