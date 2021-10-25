@@ -19,13 +19,28 @@ pd.set_option('display.width', 1000)
     
     Main Dataset is the details from each event 
     and complimentary data sets are the fighter, 
-    fighter details and fight details datasets.
+    and fight details datasets.
     
-    The Fighter Additional Details will be have the DOB column appended to the
-    Fighter DataFrame during the Normalization process
+    Datasets will be:
+        
+    Fighter Details
+    - The Fighter Details will be have the DOB column from the Fighter Additional Details
+      Dataframe appended to the it during the Normalization process.
+    
+    Event Details
+    - Event details will be expanded out creating new attributes out of the existing ones
+      from the DataFrame, this will be to preserve the rules of First Normal form where 
+      each column has only one piece of data and is a consistent datatype for the attribute
+      
+    Fight Details
+    - The fight details will be expanded to create new attributes in the same way as the
+      the Event Details.
     
     In total 10,658 unique url's are scraped in the process and can take several 
     hours to complete depending on computer hardware and internet bandwidth. 
+    
+    This process is soley for normalizing the data and any cleaning/dealing with missing/null
+    data or creating calcuted or secondary attributes will be done in a seperate stage of the process
     
     For my personal computer hardware / internet bandwidth combination it took:
     4hrs to scrape and retrieve all datasets.
@@ -85,9 +100,9 @@ def get_fighters():
     fighters_df['DOB'] = pd.to_datetime(fighters_df['DOB'])
     
     # Make sure the W, L, D columns are as type int
-    fighters_df['W'] = fighters_df['Wins'].astype(int)
-    fighters_df['L'] = fighters_df['Losses'].astype(int)
-    fighters_df['D'] = fighters_df['Draws'].astype(int)
+    fighters_df['W'] = fighters_df['W'].astype(int)
+    fighters_df['L'] = fighters_df['L'].astype(int)
+    fighters_df['D'] = fighters_df['D'].astype(int)
 
 
     # Rename Columns
@@ -119,7 +134,7 @@ fighters_df = get_fighters()
 fighters_df.info()
 fighters_df.dtypes
 print(fighters_df)
-fighters_df.to_csv('data/fighters.csv', index=False)
+fighters_df.to_csv('./data/fighters.csv', index=False)
 
 #----------------------------------------------------------------------------------------
 
