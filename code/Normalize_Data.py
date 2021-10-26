@@ -7,11 +7,12 @@ Created on Sat Oct 16 09:32:54 2021
 # imports
 import pandas as pd
 import Scraper as scrp
+import numpy as np
 
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
-#----------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------
 
 """
     Get the Figther, Fighter Additional Details, Event Details, 
@@ -46,7 +47,7 @@ pd.set_option('display.width', 1000)
     4hrs to scrape and retrieve all datasets.
 """
 
-#----------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------
 
 """
     Get the fighter data and normalize the data so that each attribute contains one
@@ -122,43 +123,282 @@ def get_fighters():
                                                'Draws',
                                                'DOB'])
 
-
-        
-            
     return fighters_df
 
-#----------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------
 
 # Get the figthers information and export to CSV
-fighters_df = get_fighters()
-fighters_df.info()
-fighters_df.dtypes
-print(fighters_df)
-fighters_df.to_csv('../data/fighters.csv', index=False)
-
-#----------------------------------------------------------------------------------------
+# =============================================================================
+# fighters_df = get_fighters()
+# fighters_df.info()
+# fighters_df.dtypes
+# print(fighters_df)
+# fighters_df.to_csv('../data/fighters.csv', index=False)
+# 
+# =============================================================================
+#------------------------------------------------------------------------------------------------------------------------
 
 # Get the events and their details
-#print("\nGetting Event Details.....\n")
 #event_details_df = scrp.get_event_details()
 
 
 # Get the details of each fight at each event
-#print("\nGetting Fight Details.....\n")
 #fight_details_df = scrp.get_event_fight_details()
 
-#----------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------
+
+def get_fights():
+    file =('../data/fights.csv')
+    fight_details_df = pd.read_csv(file)
+    
+    #--------------------------------------------------------------------------------------------------------------------
+    
+    # Split out the KD column into 2 to represent one for each fighter
+    def knock_downs(frame,y):
+        frame[[y+' F_1', y+' F_2']]=frame[y].str.split("  ", expand=True)
+        frame[y+' F_1'] = frame[y+' F_1'].apply(pd.to_numeric, errors='coerce')
+        frame[y+' F_2'] = frame[y+' F_2'].apply(pd.to_numeric, errors='coerce')
+    
+        return frame[y+' F_1'], frame[y+' F_2']
+    
+    knock_downs = knock_downs(fight_details_df.copy(), 'KD')
+    
+    fight_details_df['KD F_1'] = knock_downs[0]
+    fight_details_df['KD F_2'] = knock_downs[1]
+    
+    #--------------------------------------------------------------------------------------------------------------------
+
+    # Split out the Sig. str. column into 2 to represent one for each fighter
+    fight_details_df['Sig. str.'] = fight_details_df['Sig. str.'].str.replace(' of ', 'of', regex=False)
+    fight_details_df[['Sig. str. Fighter_1', 'Sig. str. Fighter_2']] = fight_details_df['Sig. str.'].str.split('  ', expand=True)
+    fight_details_df[['Sig. str. landed Fighter_1', 'Sig. str. thrown Fighter_1']] = fight_details_df['Sig. str. Fighter_1'].str.split('of', expand=True)
+    fight_details_df[['Sig. str. landed Fighter_2', 'Sig. str. thrown Fighter_2']] = fight_details_df['Sig. str. Fighter_2'].str.split('of', expand=True)
+    fight_details_df['Sig. str. landed Fighter_1'] = fight_details_df['Sig. str. landed Fighter_1'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Sig. str. landed Fighter_2'] = fight_details_df['Sig. str. landed Fighter_2'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Sig. str. thrown Fighter_1'] = fight_details_df['Sig. str. thrown Fighter_1'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Sig. str. thrown Fighter_2'] = fight_details_df['Sig. str. thrown Fighter_2'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df = fight_details_df.drop(['Sig. str.','Sig. str. Fighter_1' , 'Sig. str. Fighter_2'], axis=1)
+    
+    #--------------------------------------------------------------------------------------------------------------------
+
+    # Split out Sig. str. % column into 2 to represent one for each fighter
+    fight_details_df[['Sig. str. % F_1', 'Sig. str. % F_2']]=fight_details_df['Sig. str. %'].str.split('  ', expand=True)
+    fight_details_df['Sig. str. % F_1'] = fight_details_df['Sig. str. % F_1'].str.replace('%', '', regex=False)
+    fight_details_df['Sig. str. % F_1'] = fight_details_df['Sig. str. % F_1'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Sig. str. % F_1'] = fight_details_df['Sig. str. % F_1'] / 100
+    fight_details_df['Sig. str. % F_2'] = fight_details_df['Sig. str. % F_2'].str.replace('%', '', regex=False)
+    fight_details_df['Sig. str. % F_2'] = fight_details_df['Sig. str. % F_2'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Sig. str. % F_2'] = fight_details_df['Sig. str. % F_2'] / 100
+    fight_details_df = fight_details_df.drop(['Sig. str. %'], axis=1)
+    
+    #--------------------------------------------------------------------------------------------------------------------
+
+    # Split out the Total str. column into 2 to represent one for ach fighter
+    fight_details_df['Total str.']=fight_details_df['Total str.'].str.replace(' of ', 'of', regex=False)
+    fight_details_df[['Total str. F_1', 'Total str. F_2']]=fight_details_df['Total str.'].str.split('  ', expand=True)
+    fight_details_df[['Total str. landed F_1', 'Total str. thrown F_1']] = fight_details_df['Total str. F_1'].str.split('of', expand=True)
+    fight_details_df['Total str. landed F_1'] = fight_details_df['Total str. landed F_1'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Total str. thrown F_1'] = fight_details_df['Total str. thrown F_1'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df[['Total str. landed F_2', 'Total str. thrown F_2']] = fight_details_df['Total str. F_2'].str.split('of', expand=True)
+    fight_details_df['Total str. landed F_2'] = fight_details_df['Total str. landed F_2'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Total str. thrown F_2'] = fight_details_df['Total str. thrown F_2'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df = fight_details_df.drop(['Total str.','Total str. F_1','Total str. F_2'], axis=1)
 
 
+    # Split out the TD column into 2 to represent one for each fighter
+    fight_details_df['Td'] =  fight_details_df['Td'].str.replace(' of ', 'of', regex=False)
+    fight_details_df[['Td F_1', 'Td F_2']] = fight_details_df['Td'].str.split('  ', expand=True)
+    fight_details_df[['Td completed F_1', 'Td attempted F_1']]=fight_details_df['Td F_1'].str.split('of', expand=True)
+    fight_details_df['Td completed F_1'] = fight_details_df['Td completed F_1'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Td attempted F_1'] = fight_details_df['Td attempted F_1'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df[['Td completed F_2', 'Td attempted F_2']]=fight_details_df['Td F_2'].str.split('of', expand=True)
+    fight_details_df['Td completed F_2'] = fight_details_df['Td completed F_2'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Td attempted F_2'] = fight_details_df['Td attempted F_2'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df = fight_details_df.drop(['Td','Td F_1', 'Td F_2'], axis=1)
 
+    #--------------------------------------------------------------------------------------------------------------------
 
+    # Split out Td % column into 2 to represent one for each fighter
+    fight_details_df[['Td % F_1', 'Td % F_2']] = fight_details_df['Td %'].str.split('  ', expand=True)
+    fight_details_df['Td % F_1'] = fight_details_df['Td % F_1'].str.replace('%', '', regex=False).replace('---', '', regex=False)
+    fight_details_df['Td % F_1'] = fight_details_df['Td % F_1'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Td % F_1'] = fight_details_df['Td % F_1'] / 100
+    fight_details_df['Td % F_2'] = fight_details_df['Td % F_2'].str.replace('%', '', regex=False).replace('---', '', regex=False)
+    fight_details_df['Td % F_2'] = fight_details_df['Td % F_2'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Td % F_2'] = fight_details_df['Td % F_2'] / 100
+    fight_details_df = fight_details_df.drop(['Td %'], axis=1)
+    
+    #--------------------------------------------------------------------------------------------------------------------
 
+    # Split out Sub. att column into 2 to represent one for each fighter
+    fight_details_df[['Sub. att F_1', 'Sub. att F_2']]=fight_details_df['Sub. att'].str.split('  ', expand=True)
+    fight_details_df['Sub. att F_1'] = fight_details_df['Sub. att F_1'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Sub. att F_2'] = fight_details_df['Sub. att F_2'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df = fight_details_df.drop(['Sub. att'], axis=1)
 
+    # Split out Rev. column into 2 to represent one for each fighter
+    fight_details_df[['Rev. F_1', 'Rev. F_2']]=fight_details_df['Rev.'].str.split('  ', expand=True)
+    fight_details_df['Rev. F_1'] = fight_details_df['Rev. F_1'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Rev. F_2'] = fight_details_df['Rev. F_2'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df = fight_details_df.drop(['Rev.'], axis=1)
+    
+    #--------------------------------------------------------------------------------------------------------------------
 
+    # Split out the Ctrl column into 2 to represent one for each fighter
+    fight_details_df[['Ctrl F_1', 'Ctrl F_2']] = fight_details_df['Ctrl'].str.split('  ', expand=True)
+    fight_details_df[['Ctrl_min F_1', 'Ctrl_sec F_1']] = fight_details_df['Ctrl F_1'].str.split(':', expand=True)
+    fight_details_df['Ctrl_min F_1'] = fight_details_df['Ctrl_min F_1'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Ctrl_min F_1'] = fight_details_df['Ctrl_min F_1']*60
+    fight_details_df['Ctrl_sec F_1'] = fight_details_df['Ctrl_sec F_1'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Ctrl F_1'] = fight_details_df['Ctrl_min F_1'] + fight_details_df['Ctrl_sec F_1']
+    
+    fight_details_df[['Ctrl_min F_2', 'Ctrl_sec F_2']] = fight_details_df['Ctrl F_2'].str.split(':', expand=True)
+    fight_details_df['Ctrl_min F_2'] = fight_details_df['Ctrl_min F_2'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Ctrl_min F_2'] = fight_details_df['Ctrl_min F_2']*60
+    fight_details_df['Ctrl_sec F_2'] = fight_details_df['Ctrl_sec F_2'].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Ctrl F_2'] = fight_details_df['Ctrl_min F_2'] + fight_details_df['Ctrl_sec F_2']
+    fight_details_df = fight_details_df.drop(['Ctrl','Ctrl_min F_1', 'Ctrl_sec F_1', 'Ctrl_min F_2', 'Ctrl_sec F_2'], axis=1)
+    
+    #--------------------------------------------------------------------------------------------------------------------
+    
 
+    # Split out the needed columns from strikes into 2 to represent one for each fighter
+    def strikes_per_body_part(x,y):
+        x[y] = x[y].str.replace(' of ', 'of', regex=False)
+        x[[y+' F_1', y+' F_2']] = x[y].str.split('  ', expand=True)
+        x[[y+' landed F_1', y+' thrown F_1']] = x[y+' F_1'].str.split('of', expand=True)
+        x[y+' landed F_1'] = x[y+' landed F_1'].apply(pd.to_numeric, errors='coerce')
+        x[y+' thrown F_1'] = x[y+' thrown F_1'].apply(pd.to_numeric, errors='coerce')
+        x[[y+' landed F_2', y+' thrown F_2']] = x[y+' F_2'].str.split('of', expand=True)
+        x[y+' landed F_2'] = x[y+' landed F_2'].apply(pd.to_numeric, errors='coerce')
+        x[y+' thrown F_2'] = x[y+' thrown F_2'].apply(pd.to_numeric, errors='coerce')
+    
+        return x[y+' landed F_1'],x[y+' thrown F_1'],x[y+' landed F_2'],x[y+' thrown F_2']
+    
+    # Get Head strikes
+    strikes_head = strikes_per_body_part(fight_details_df.copy(), 'Head')
+    fight_details_df['Head landed F_1'] = strikes_head[0]
+    fight_details_df['Head thrown F_1'] = strikes_head[1]
+    fight_details_df['Head landed F_2'] = strikes_head[2]
+    fight_details_df['Head thrown F_2'] = strikes_head[3]
+    
+    # Get Body strikes
+    strikes_body = strikes_per_body_part(fight_details_df.copy(), 'Body')
+    fight_details_df['Body landed F_1'] = strikes_body[0]
+    fight_details_df['Body thrown F_1'] = strikes_body[1]
+    fight_details_df['Body landed F_2'] = strikes_body[2]
+    fight_details_df['Body thrown F_2'] = strikes_body[3]
+    
+    # Get Leg strikes
+    strikes_leg = strikes_per_body_part(fight_details_df.copy(), 'Leg')
+    fight_details_df['Leg landed F_1'] = strikes_leg[0]
+    fight_details_df['Leg thrown F_1'] = strikes_leg[1]
+    fight_details_df['Leg landed F_2'] = strikes_leg[2]
+    fight_details_df['Leg thrown F_2'] = strikes_leg[3]
+    
+    # Get Distance strikes
+    strikes_Distance = strikes_per_body_part(fight_details_df.copy(), 'Distance')
+    fight_details_df['Distance landed F_1'] = strikes_Distance[0]
+    fight_details_df['Distance thrown F_1'] = strikes_Distance[1]
+    fight_details_df['Distance landed F_2'] = strikes_Distance[2]
+    fight_details_df['Distance thrown F_2'] = strikes_Distance[3]
+    
+    # Get Clinch strikes
+    strikes_Clinch = strikes_per_body_part(fight_details_df.copy(), 'Clinch')
+    fight_details_df['Clinch landed F_1'] = strikes_Clinch[0]
+    fight_details_df['Clinch thrown F_1'] = strikes_Clinch[1]
+    fight_details_df['Clinch landed F_2'] = strikes_Clinch[2]
+    fight_details_df['Clinch thrown F_2'] = strikes_Clinch[3]
+    
+    # Get Ground strikes
+    strikes_Ground = strikes_per_body_part(fight_details_df.copy(), 'Ground')
+    fight_details_df['Ground landed F_1'] = strikes_Ground[0]
+    fight_details_df['Ground thrown F_1'] = strikes_Ground[1]
+    fight_details_df['Ground landed F_2'] = strikes_Ground[2]
+    fight_details_df['Ground thrown F_2'] = strikes_Ground[3]
+        
+        
+    #--------------------------------------------------------------------------------------------------------------------
 
+    def get_names():
+        file2 = ('../data/fighters.csv')
+        fighters_ = pd.read_csv(file2)
+        fighters_.fillna('', inplace=True)
+        fighter_name_ = list(fighters_['First Name'] + ' '+ fighters_['Last Name'])
+        fighter_name_ =[x.strip(' ') for x in fighter_name_]
+        fighter_name = pd.DataFrame({'Names':fighter_name_})
+        return fighter_name
 
+    names = get_names()
+    
+   #-----------------------------------------------------------------------------------------
+   
+    def fighter_names(frame):
+         frame['Fighter 1'] = ''
+    
+         for x in range(len(names)):
+            frame['Fighter 1'] = np.where(frame['Fighter'].str.startswith(names.loc[x,'Names']), 
+                                          names.loc[x,'Names'], 
+                                          frame['Fighter 1'])
+        
+         frame['F1 name len'] = frame['Fighter 1'].str.len()
+         frame['name len'] = frame['Fighter'].str.len()
+         frame['F2 name len'] = frame['name len'] - frame['Fighter 1'].str.len()
+         frame['Fighter 2'] = ''
+        
+         for x in range(len(frame)):
+             y = frame.iloc[x]['F2 name len']
+            
+             frame.loc[x,'Fighter 2'] = frame.iloc[x]['Fighter'][-y:]
+            
+         frame['Fighter 2'] = frame['Fighter 2'].str.strip()
 
+         return frame['Fighter 1'],frame['Fighter 2']
+
+    #-----------------------------------------------------------------------------------------
+    
+    fighters = fighter_names(fight_details_df.copy())
+    fight_details_df['Fighter 1'] = fighters[0]
+    fight_details_df['Fighter 2'] = fighters[1]
+        
+    #-----------------------------------------------------------------------------------------
+    
+    def clean_dataframe(frame):
+        frame = frame.reindex(columns=['Event','Fighter 1','KD F_1','Sig. str. landed Fighter_1', 
+                                        'Sig. str. thrown Fighter_1','Sig. str. % F_1','Total str. landed F_1', 
+                                        'Total str. thrown F_1', 'Td completed F_1','Td attempted F_1',
+                                        'Td % F_1','Sub. att F_1','Rev. F_1','Ctrl F_1', 'Head landed F_1', 
+                                        'Head thrown F_1','Body landed F_1','Body thrown F_1','Leg landed F_1', 
+                                        'Leg thrown F_1','Distance landed F_1','Distance thrown F_1','Clinch landed F_1', 
+                                        'Clinch thrown F_1','Ground landed F_1', 'Ground thrown F_1','Fighter 2',
+                                        'KD F_2', 'Sig. str. landed Fighter_2','Sig. str. thrown Fighter_2', 
+                                        'Sig. str. % F_2','Total str. landed F_2','Total str. thrown F_2', 
+                                        'Td completed F_2','Td attempted F_2', 'Td % F_2','Sub. att F_2', 
+                                        'Rev. F_2','Ctrl F_2', 'Head landed F_2', 'Head thrown F_2',
+                                        'Body landed F_2','Body thrown F_2','Leg landed F_2','Leg thrown F_2', 
+                                        'Distance landed F_2','Distance thrown F_2','Clinch landed F_2',
+                                        'Clinch thrown F_2','Ground landed F_2','Ground thrown F_2' 
+                                        ])
+        
+        return frame
+    
+    #-----------------------------------------------------------------------------------------  
+    
+    frame = clean_dataframe(fight_details_df)    
+    fight_details_df = frame
+    
+    return fight_details_df
+
+#-------------------------------------------------------------------------------------------------------------------------
+
+fight_details_df = get_fights()
+fight_details_df.info()
+fight_details_df.dtypes
+
+# =============================================================================
+# file =('../data/fights.csv')
+# fight_details_df = pd.read_csv(file)
+# =============================================================================
 
 
 
