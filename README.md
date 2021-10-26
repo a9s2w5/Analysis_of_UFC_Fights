@@ -10,9 +10,9 @@ can take several hours to complete depending on computer hardware and internet b
 For my personal computer hardware / internet bandwidth combination it took:<br>
 **_Approx 4hrs_** to retrieve all data.<br>
 <br>
-To collect the Data, Normalize_Data.py can be ran which will update the data contained in the csv files.<br>
+To collect the Data, Get_Data.py can be ran which will update the data contained in the csv files.<br>
 Data is updated on the website after each new fight event.<br>
-**Running the Normalize_Data.py script will initiate these methods:**<br>
+**Running the Get_Data.py script will initiate these methods:**<br>
 
 #### 1. Getting the fighter info & normalizing
 ```python
