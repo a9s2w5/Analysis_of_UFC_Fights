@@ -153,19 +153,29 @@ def get_fights():
     
     #--------------------------------------------------------------------------------------------------------------------
     
-    # Split out the KD column into 2 to represent one for each fighter
-    def knock_downs(frame,y):
+    # Split out the KD, Sub att. and Rev. columns into 2 to represent one for each fighter
+    def knock_downs_submissions(frame,y):
         frame[[y+' F_1', y+' F_2']]=frame[y].str.split("  ", expand=True)
         frame[y+' F_1'] = frame[y+' F_1'].apply(pd.to_numeric, errors='coerce')
         frame[y+' F_2'] = frame[y+' F_2'].apply(pd.to_numeric, errors='coerce')
     
         return frame[y+' F_1'], frame[y+' F_2']
     
-    knock_downs = knock_downs(fight_details_df.copy(), 'KD')
-    
+    # Get the knockdowns for each fighter
+    knock_downs = knock_downs_submissions(fight_details_df.copy(), 'KD')
     fight_details_df['KD F_1'] = knock_downs[0]
     fight_details_df['KD F_2'] = knock_downs[1]
     
+    # Get the submission attempts by each fighter
+    submissions = knock_downs_submissions(fight_details_df.copy(), 'Sub. att')
+    fight_details_df['Sub. att F_1'] = submissions[0]
+    fight_details_df['Sub. att F_2'] = submissions[1]
+    
+    # Get the reversals for each fighter
+    reversals = knock_downs_submissions(fight_details_df.copy(), 'Rev.')
+    fight_details_df['Rev. F_1'] = reversals[0]
+    fight_details_df['Rev. F_2'] = reversals[1]
+
     #--------------------------------------------------------------------------------------------------------------------
 
     # Split out the Sig. str. column into 2 to represent one for each fighter
@@ -227,20 +237,6 @@ def get_fights():
     fight_details_df['Td % F_2'] = fight_details_df['Td % F_2'].apply(pd.to_numeric, errors='coerce')
     fight_details_df['Td % F_2'] = fight_details_df['Td % F_2'] / 100
     fight_details_df = fight_details_df.drop(['Td %'], axis=1)
-    
-    #--------------------------------------------------------------------------------------------------------------------
-
-    # Split out Sub. att column into 2 to represent one for each fighter
-    fight_details_df[['Sub. att F_1', 'Sub. att F_2']]=fight_details_df['Sub. att'].str.split('  ', expand=True)
-    fight_details_df['Sub. att F_1'] = fight_details_df['Sub. att F_1'].apply(pd.to_numeric, errors='coerce')
-    fight_details_df['Sub. att F_2'] = fight_details_df['Sub. att F_2'].apply(pd.to_numeric, errors='coerce')
-    fight_details_df = fight_details_df.drop(['Sub. att'], axis=1)
-
-    # Split out Rev. column into 2 to represent one for each fighter
-    fight_details_df[['Rev. F_1', 'Rev. F_2']]=fight_details_df['Rev.'].str.split('  ', expand=True)
-    fight_details_df['Rev. F_1'] = fight_details_df['Rev. F_1'].apply(pd.to_numeric, errors='coerce')
-    fight_details_df['Rev. F_2'] = fight_details_df['Rev. F_2'].apply(pd.to_numeric, errors='coerce')
-    fight_details_df = fight_details_df.drop(['Rev.'], axis=1)
     
     #--------------------------------------------------------------------------------------------------------------------
 
