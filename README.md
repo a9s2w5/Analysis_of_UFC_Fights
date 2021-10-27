@@ -4,14 +4,28 @@ An analysis of Mixed Martial Arts fights taken place under the promotion of the 
 # Data Collection
 Data for this analysis has been collected through http://www.ufcstats.com <br>
 <br>
-In total 10,658 unique url's where processed, Using this program to collect the data <br>
-can take several hours to complete depending on computer hardware and internet bandwidth.<br>
+
+### Initial Data
+In total 10,658 unique url's where processed for the initial Datasets. Using this program initially <br>
+to collect the data can take several hours to complete depending on computer hardware and internet bandwidth.<br>
     
 For my personal computer hardware / internet bandwidth combination it took:<br>
 **_Approx 4hrs_** to retrieve all data.<br>
 <br>
+
+### Updating Data
+If the program has been ran already, then only new information will be collected and appended to the <br>
+csv files. This will save time in updating data and stop the need to run the program entirely everytime.<br>
+<br>
+To do this, a list of URL's visited is kept and checked against before proceeding with the scraping. <br>
+Caveats to this are a) a flat file of all URL's is to be maintained and when updating data the scraper must <br>
+scrape the initial URL's to see if anything has changed.<br>
+
+### Collecting the Data
 To collect the Data, Get_Data.py can be ran which will update the data contained in the csv files.<br>
-Data is updated on the website after each new fight event.<br>
+Data is updated on the website after each new fight event. Be careful not to run the program **DURING** a live a event.<br>
+Your data will be skewed. <br>
+<br>
 **Running the Get_Data.py script will initiate these methods:**<br>
 
 #### 1. Getting the fighter info & normalizing
@@ -24,21 +38,27 @@ def get_fighters():
     # Get additional Fighter details
     fighter_details_df = scrp.get_further_fighter_details()
     
-    # Add a blank DOB column to the end of the DataFrame
-    columns = len(fighters_df.columns)
-    fighters_df.insert(columns,'DOB','')
-    
-    # Append DOB info to the fighters Dataframe
-    for i in range(len(fighters_df)):
-        fighters_df.loc[i, 'DOB'] = fighter_details_df['DOB'].loc[i]
+    if len(fighter_details_df) < 1:
+        return 
+    else:
+        # Add a blank DOB column to the end of the DataFrame
+        columns = len(fighters_df.columns)
+        fighters_df.insert(columns,'DOB','')
+        
+        # Append DOB info to the fighters Dataframe
+        for i in range(len(fighters_df)):
+            fighters_df.loc[i, 'DOB'] = fighter_details_df['DOB'].loc[i]
     
     # More code below here for normalization......
     
     return fighters_df
     
-# Get the figthers information and export to CSV
-fighters_df = get_fighters()
-fighters_df.to_csv('../data/fighters.csv', index=False)
+# If no new fighters to get info on print msg and do nothing
+if fighters_df == None:
+    print('Done checking Fighters.')
+# Otherwise print the info and append to existing csv
+else:
+    fighters_df.to_csv('../data/fighters.csv', mode='a', index=False, header=False)
 ```
 
 
