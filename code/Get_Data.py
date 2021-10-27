@@ -160,6 +160,8 @@ def get_fights():
         frame[y+' F_2'] = frame[y+' F_2'].apply(pd.to_numeric, errors='coerce')
     
         return frame[y+' F_1'], frame[y+' F_2']
+   
+    #-----------------------------------------------------------------------------------------
     
     # Get the knockdowns for each fighter
     knock_downs = knock_downs_submissions(fight_details_df.copy(), 'KD')
@@ -241,23 +243,34 @@ def get_fights():
     #--------------------------------------------------------------------------------------------------------------------
 
     # Split out the Ctrl column into 2 to represent one for each fighter
-    fight_details_df[['Ctrl F_1', 'Ctrl F_2']] = fight_details_df['Ctrl'].str.split('  ', expand=True)
-    fight_details_df[['Ctrl_min F_1', 'Ctrl_sec F_1']] = fight_details_df['Ctrl F_1'].str.split(':', expand=True)
-    fight_details_df['Ctrl_min F_1'] = fight_details_df['Ctrl_min F_1'].apply(pd.to_numeric, errors='coerce')
-    fight_details_df['Ctrl_min F_1'] = fight_details_df['Ctrl_min F_1']*60
-    fight_details_df['Ctrl_sec F_1'] = fight_details_df['Ctrl_sec F_1'].apply(pd.to_numeric, errors='coerce')
-    fight_details_df['Ctrl F_1'] = fight_details_df['Ctrl_min F_1'] + fight_details_df['Ctrl_sec F_1']
+    def control_split(frame, y):
+        frame[[y+' F_1', y+' F_2']] = frame[y].str.split('  ', expand=True)
     
-    fight_details_df[['Ctrl_min F_2', 'Ctrl_sec F_2']] = fight_details_df['Ctrl F_2'].str.split(':', expand=True)
-    fight_details_df['Ctrl_min F_2'] = fight_details_df['Ctrl_min F_2'].apply(pd.to_numeric, errors='coerce')
-    fight_details_df['Ctrl_min F_2'] = fight_details_df['Ctrl_min F_2']*60
-    fight_details_df['Ctrl_sec F_2'] = fight_details_df['Ctrl_sec F_2'].apply(pd.to_numeric, errors='coerce')
-    fight_details_df['Ctrl F_2'] = fight_details_df['Ctrl_min F_2'] + fight_details_df['Ctrl_sec F_2']
-    fight_details_df = fight_details_df.drop(['Ctrl','Ctrl_min F_1', 'Ctrl_sec F_1', 'Ctrl_min F_2', 'Ctrl_sec F_2'], axis=1)
+        return frame[y+' F_1'], frame[y+' F_2']
+
+    control_split = control_split(fight_details_df.copy(), 'Ctrl')
+    c_split_F_1 = control_split[0]
+    c_split_F_1 = c_split_F_1.to_frame()
+    c_split_F_2 = control_split[1]
+    c_split_F_2 = c_split_F_2.to_frame()
+
+    def control_times(frame, x, y):
+        frame[[x+'_min '+y, x+'_sec '+y]] = frame[x+' '+y].str.split(':', expand=True)
+        frame[x+'_min '+y] = frame[x+'_min '+y].apply(pd.to_numeric, errors='coerce')
+        frame[x+'_min '+y] = frame[x+'_min '+y]*60
+        frame[x+'_sec '+y] = frame[x+'_sec '+y].apply(pd.to_numeric, errors='coerce')
+        frame[x+' '+y] = frame[x+'_min '+y] + frame[x+'_sec '+y]
+        
+        
+        return frame[x+' '+y]
+
+    control_times_f1 = control_times(c_split_F_1, 'Ctrl', 'F_1')
+    control_times_f2 = control_times(c_split_F_2, 'Ctrl', 'F_2')
+    fight_details_df['Ctrl F_1'] = control_times_f1
+    fight_details_df['Ctrl F_2'] = control_times_f2
     
     #--------------------------------------------------------------------------------------------------------------------
     
-
     # Split out the needed columns from strikes into 2 to represent one for each fighter
     def strikes_per_body_part(x,y):
         x[y] = x[y].str.replace(' of ', 'of', regex=False)
@@ -270,6 +283,8 @@ def get_fights():
         x[y+' thrown F_2'] = x[y+' thrown F_2'].apply(pd.to_numeric, errors='coerce')
     
         return x[y+' landed F_1'],x[y+' thrown F_1'],x[y+' landed F_2'],x[y+' thrown F_2']
+  
+    #-----------------------------------------------------------------------------------------
     
     # Get Head strikes
     strikes_head = strikes_per_body_part(fight_details_df.copy(), 'Head')
@@ -324,7 +339,9 @@ def get_fights():
         fighter_name_ =[x.strip(' ') for x in fighter_name_]
         fighter_name = pd.DataFrame({'Names':fighter_name_})
         return fighter_name
-
+   
+   #-----------------------------------------------------------------------------------------
+    
     names = get_names()
     
    #-----------------------------------------------------------------------------------------
@@ -395,6 +412,12 @@ fight_details_df.dtypes
 # file =('../data/fights.csv')
 # fight_details_df = pd.read_csv(file)
 # =============================================================================
+
+
+
+
+
+
 
 
 
