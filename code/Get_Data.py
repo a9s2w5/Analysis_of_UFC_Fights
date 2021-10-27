@@ -245,15 +245,26 @@ def get_fights():
 
     #--------------------------------------------------------------------------------------------------------------------
 
-    # Split out Td % column into 2 to represent one for each fighter
-    fight_details_df[['Td % F_1', 'Td % F_2']] = fight_details_df['Td %'].str.split('  ', expand=True)
-    fight_details_df['Td % F_1'] = fight_details_df['Td % F_1'].str.replace('%', '', regex=False).replace('---', '', regex=False)
-    fight_details_df['Td % F_1'] = fight_details_df['Td % F_1'].apply(pd.to_numeric, errors='coerce')
-    fight_details_df['Td % F_1'] = fight_details_df['Td % F_1'] / 100
-    fight_details_df['Td % F_2'] = fight_details_df['Td % F_2'].str.replace('%', '', regex=False).replace('---', '', regex=False)
-    fight_details_df['Td % F_2'] = fight_details_df['Td % F_2'].apply(pd.to_numeric, errors='coerce')
-    fight_details_df['Td % F_2'] = fight_details_df['Td % F_2'] / 100
-    fight_details_df = fight_details_df.drop(['Td %'], axis=1)
+    # Split the takedown %'s for each fighter
+    takedown_percent = split(fight_details_df.copy(), 'Td %')
+    takedown_percent_f1 = takedown_percent[0]
+    takedown_percent_f1 = takedown_percent_f1.to_frame()
+    takedown_percent_f2 = takedown_percent[1]
+    takedown_percent_f2 = takedown_percent_f2.to_frame()
+    
+    # Remove characters and convert percentage to decimal
+    def takedown_percentages(frame,y):
+        frame['Td % '+y] = frame['Td % '+y].str.replace('%', '', regex=False).replace('---', '', regex=False)
+        frame['Td % '+y] = frame['Td % '+y].apply(pd.to_numeric, errors='coerce')
+        frame['Td % '+y] = frame['Td % '+y] / 100
+        
+        return frame['Td % '+y]
+    
+    # Get takedown %'s for each fighter
+    takedown_percentages_f1 = takedown_percentages(takedown_percent_f1,'F_1')
+    takedown_percentages_f2 = takedown_percentages(takedown_percent_f2,'F_2')
+    fight_details_df['Td % F_1'] = takedown_percentages_f1
+    fight_details_df['Td % F_2'] = takedown_percentages_f2
     
     #------------------------------------------------------------------------------------------------
     
