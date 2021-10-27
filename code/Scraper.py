@@ -11,7 +11,7 @@ Created on Sat Oct 16 09:32:54 2021
     under the UFC Mixed Martial Arts promotion.
     
     This module only scrapes the data and does not perform cleaning or first normal form
-    operations on the data. It is meant to be imported into Normalize_Data.py and ran where
+    operations on the data. It is meant to be imported into Get_Data.py and ran where
     4 Datasets are retrieved ready for first normal form opertations and data preperation/cleaning.
 """
 
