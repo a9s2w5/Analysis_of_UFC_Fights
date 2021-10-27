@@ -193,6 +193,9 @@ def get_fights():
         
         return frame[y+' landed F_1'],frame[y+' thrown F_1'],frame[y+' landed F_2'],frame[y+' thrown F_2']
     
+    #-----------------------------------------------------------------------------------------
+    
+    # Get the significant strikes for each fighter
     sig_strikes = significant_strikes(fight_details_df.copy(), 'Sig. str.')
     fight_details_df['Sig. str. landed F_1'] = sig_strikes[0]
     fight_details_df['Sig. str. thrown F_1'] = sig_strikes[1]
