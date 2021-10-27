@@ -181,15 +181,23 @@ def get_fights():
     #--------------------------------------------------------------------------------------------------------------------
 
     # Split out the Sig. str. column into 2 to represent one for each fighter
-    fight_details_df['Sig. str.'] = fight_details_df['Sig. str.'].str.replace(' of ', 'of', regex=False)
-    fight_details_df[['Sig. str. Fighter_1', 'Sig. str. Fighter_2']] = fight_details_df['Sig. str.'].str.split('  ', expand=True)
-    fight_details_df[['Sig. str. landed Fighter_1', 'Sig. str. thrown Fighter_1']] = fight_details_df['Sig. str. Fighter_1'].str.split('of', expand=True)
-    fight_details_df[['Sig. str. landed Fighter_2', 'Sig. str. thrown Fighter_2']] = fight_details_df['Sig. str. Fighter_2'].str.split('of', expand=True)
-    fight_details_df['Sig. str. landed Fighter_1'] = fight_details_df['Sig. str. landed Fighter_1'].apply(pd.to_numeric, errors='coerce')
-    fight_details_df['Sig. str. landed Fighter_2'] = fight_details_df['Sig. str. landed Fighter_2'].apply(pd.to_numeric, errors='coerce')
-    fight_details_df['Sig. str. thrown Fighter_1'] = fight_details_df['Sig. str. thrown Fighter_1'].apply(pd.to_numeric, errors='coerce')
-    fight_details_df['Sig. str. thrown Fighter_2'] = fight_details_df['Sig. str. thrown Fighter_2'].apply(pd.to_numeric, errors='coerce')
-    fight_details_df = fight_details_df.drop(['Sig. str.','Sig. str. Fighter_1' , 'Sig. str. Fighter_2'], axis=1)
+    def significant_strikes(frame, y):
+        frame[y] = frame[y].str.replace(' of ', 'of', regex=False)
+        frame[[y+' F_1', y+' F_2']] = frame[y].str.split('  ', expand=True)
+        frame[[y+' landed F_1', y+' thrown F_1']] = frame[y+' F_1'].str.split('of', expand=True)
+        frame[[y+' landed F_2', y+' thrown F_2']] = frame[y+' F_2'].str.split('of', expand=True)
+        frame[y+' landed F_1'] = frame[y+' landed F_1'].apply(pd.to_numeric, errors='coerce')
+        frame[y+' landed F_2'] = frame[y+' landed F_2'].apply(pd.to_numeric, errors='coerce')
+        frame[y+' thrown F_1'] = frame[y+' thrown F_1'].apply(pd.to_numeric, errors='coerce')
+        frame[y+' thrown F_2'] = frame[y+' thrown F_2'].apply(pd.to_numeric, errors='coerce')
+        
+        return frame[y+' landed F_1'],frame[y+' thrown F_1'],frame[y+' landed F_2'],frame[y+' thrown F_2']
+    
+    sig_strikes = significant_strikes(fight_details_df.copy(), 'Sig. str.')
+    fight_details_df['Sig. str. landed F_1'] = sig_strikes[0]
+    fight_details_df['Sig. str. thrown F_1'] = sig_strikes[1]
+    fight_details_df['Sig. str. landed F_2'] = sig_strikes[2]
+    fight_details_df['Sig. str. thrown F_2'] = sig_strikes[3]
     
     #--------------------------------------------------------------------------------------------------------------------
 
@@ -377,14 +385,14 @@ def get_fights():
     #-----------------------------------------------------------------------------------------
     
     def clean_dataframe(frame):
-        frame = frame.reindex(columns=['Event','Fighter 1','KD F_1','Sig. str. landed Fighter_1', 
-                                        'Sig. str. thrown Fighter_1','Sig. str. % F_1','Total str. landed F_1', 
+        frame = frame.reindex(columns=['Event','Fighter 1','KD F_1','Sig. str. landed F_1', 
+                                        'Sig. str. thrown F_1','Sig. str. % F_1','Total str. landed F_1', 
                                         'Total str. thrown F_1', 'Td completed F_1','Td attempted F_1',
                                         'Td % F_1','Sub. att F_1','Rev. F_1','Ctrl F_1', 'Head landed F_1', 
                                         'Head thrown F_1','Body landed F_1','Body thrown F_1','Leg landed F_1', 
                                         'Leg thrown F_1','Distance landed F_1','Distance thrown F_1','Clinch landed F_1', 
                                         'Clinch thrown F_1','Ground landed F_1', 'Ground thrown F_1','Fighter 2',
-                                        'KD F_2', 'Sig. str. landed Fighter_2','Sig. str. thrown Fighter_2', 
+                                        'KD F_2', 'Sig. str. landed F_2','Sig. str. thrown F_2', 
                                         'Sig. str. % F_2','Total str. landed F_2','Total str. thrown F_2', 
                                         'Td completed F_2','Td attempted F_2', 'Td % F_2','Sub. att F_2', 
                                         'Rev. F_2','Ctrl F_2', 'Head landed F_2', 'Head thrown F_2',
@@ -411,13 +419,8 @@ fight_details_df.dtypes
 # =============================================================================
 # file =('../data/fights.csv')
 # fight_details_df = pd.read_csv(file)
+# 
+# 
 # =============================================================================
-
-
-
-
-
-
-
 
 
