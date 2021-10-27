@@ -154,30 +154,30 @@ def get_fights():
     file =('../data/fights.csv')
     fight_details_df = pd.read_csv(file)
     
-    #--------------------------------------------------------------------------------------------
-    
-    # Split out the KD, Sub att. and Rev. columns into 2 to represent one for each fighter
-    def knock_downs_submissions(frame,y):
-        frame[[y+' F_1', y+' F_2']]=frame[y].str.split("  ", expand=True)
-        frame[y+' F_1'] = frame[y+' F_1'].apply(pd.to_numeric, errors='coerce')
-        frame[y+' F_2'] = frame[y+' F_2'].apply(pd.to_numeric, errors='coerce')
+    #--------------------------------------------------------------------------------------------------------------------
+   
+    # Split out columns into 2 by double space delimiter, to represent one for each fighter
+    def split(frame, y):
+        frame[[y+' F_1', y+' F_2']] = frame[y].str.split('  ', expand=True)
     
         return frame[y+' F_1'], frame[y+' F_2']
-       
+    
+    #--------------------------------------------------------------------------------------------
+           
     # Get the knockdowns for each fighter
-    knock_downs = knock_downs_submissions(fight_details_df.copy(), 'KD')
-    fight_details_df['KD F_1'] = knock_downs[0]
-    fight_details_df['KD F_2'] = knock_downs[1]
+    knock_downs_split = split(fight_details_df.copy(), 'KD')
+    fight_details_df['KD F_1'] = knock_downs_split[0].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['KD F_2'] = knock_downs_split[1].apply(pd.to_numeric, errors='coerce')
     
     # Get the submission attempts by each fighter
-    submissions = knock_downs_submissions(fight_details_df.copy(), 'Sub. att')
-    fight_details_df['Sub. att F_1'] = submissions[0]
-    fight_details_df['Sub. att F_2'] = submissions[1]
+    submissions_split = split(fight_details_df.copy(), 'Sub. att')
+    fight_details_df['Sub. att F_1'] = submissions_split[0].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Sub. att F_2'] = submissions_split[1].apply(pd.to_numeric, errors='coerce')
     
     # Get the reversals for each fighter
-    reversals = knock_downs_submissions(fight_details_df.copy(), 'Rev.')
-    fight_details_df['Rev. F_1'] = reversals[0]
-    fight_details_df['Rev. F_2'] = reversals[1]
+    reversals_split = split(fight_details_df.copy(), 'Rev.')
+    fight_details_df['Rev. F_1'] = reversals_split[0].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Rev. F_2'] = reversals_split[1].apply(pd.to_numeric, errors='coerce')
 
     #----------------------------------------------------------------------------------------------
 
@@ -187,22 +187,18 @@ def get_fights():
         frame[[y+' F_1', y+' F_2']] = frame[y].str.split('  ', expand=True)
         frame[[y+' landed F_1', y+' thrown F_1']] = frame[y+' F_1'].str.split('of', expand=True)
         frame[[y+' landed F_2', y+' thrown F_2']] = frame[y+' F_2'].str.split('of', expand=True)
-        frame[y+' landed F_1'] = frame[y+' landed F_1'].apply(pd.to_numeric, errors='coerce')
-        frame[y+' landed F_2'] = frame[y+' landed F_2'].apply(pd.to_numeric, errors='coerce')
-        frame[y+' thrown F_1'] = frame[y+' thrown F_1'].apply(pd.to_numeric, errors='coerce')
-        frame[y+' thrown F_2'] = frame[y+' thrown F_2'].apply(pd.to_numeric, errors='coerce')
         
         return frame[y+' landed F_1'],frame[y+' thrown F_1'],frame[y+' landed F_2'],frame[y+' thrown F_2']
         
     # Get the significant strikes for each fighter
     sig_strikes = significant_strikes(fight_details_df.copy(), 'Sig. str.')
-    fight_details_df['Sig. str. landed F_1'] = sig_strikes[0]
-    fight_details_df['Sig. str. thrown F_1'] = sig_strikes[1]
-    fight_details_df['Sig. str. landed F_2'] = sig_strikes[2]
-    fight_details_df['Sig. str. thrown F_2'] = sig_strikes[3]
+    fight_details_df['Sig. str. landed F_1'] = sig_strikes[0].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Sig. str. thrown F_1'] = sig_strikes[1].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Sig. str. landed F_2'] = sig_strikes[2].apply(pd.to_numeric, errors='coerce')
+    fight_details_df['Sig. str. thrown F_2'] = sig_strikes[3].apply(pd.to_numeric, errors='coerce')
     
     #--------------------------------------------------------------------------------------------------------------------
-
+    
     # Split out Sig. str. % column into 2 to represent one for each fighter
     fight_details_df[['Sig. str. % F_1', 'Sig. str. % F_2']]=fight_details_df['Sig. str. %'].str.split('  ', expand=True)
     fight_details_df['Sig. str. % F_1'] = fight_details_df['Sig. str. % F_1'].str.replace('%', '', regex=False)
@@ -251,15 +247,9 @@ def get_fights():
     fight_details_df = fight_details_df.drop(['Td %'], axis=1)
     
     #------------------------------------------------------------------------------------------------
-
-    # Split out the Ctrl column into 2 to represent one for each fighter
-    def control_split(frame, y):
-        frame[[y+' F_1', y+' F_2']] = frame[y].str.split('  ', expand=True)
     
-        return frame[y+' F_1'], frame[y+' F_2']
-    
-    # Get the control times for wach fighter
-    control_split = control_split(fight_details_df.copy(), 'Ctrl')
+    # Get the control times for each fighter
+    control_split = split(fight_details_df.copy(), 'Ctrl')
     c_split_F_1 = control_split[0]
     c_split_F_1 = c_split_F_1.to_frame()
     c_split_F_2 = control_split[1]
