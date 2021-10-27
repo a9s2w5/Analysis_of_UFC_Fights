@@ -157,10 +157,10 @@ def get_fights():
     #--------------------------------------------------------------------------------------------------------------------
    
     # Split out columns into 2 by double space delimiter, to represent one for each fighter
-    def split(frame, y):
-        frame[[y+' F_1', y+' F_2']] = frame[y].str.split('  ', expand=True)
+    def split(frame, x):
+        frame[[x+' F_1', x+' F_2']] = frame[x].str.split('  ', expand=True)
     
-        return frame[y+' F_1'], frame[y+' F_2']
+        return frame[x+' F_1'], frame[x+' F_2']
     
     #--------------------------------------------------------------------------------------------
            
@@ -182,13 +182,13 @@ def get_fights():
     #----------------------------------------------------------------------------------------------
 
     # Split out the Sig. str. column into 2 to represent one for each fighter
-    def significant_strikes(frame, y):
-        frame[y] = frame[y].str.replace(' of ', 'of', regex=False)
-        frame[[y+' F_1', y+' F_2']] = frame[y].str.split('  ', expand=True)
-        frame[[y+' landed F_1', y+' thrown F_1']] = frame[y+' F_1'].str.split('of', expand=True)
-        frame[[y+' landed F_2', y+' thrown F_2']] = frame[y+' F_2'].str.split('of', expand=True)
+    def significant_strikes(frame, x):
+        frame[x] = frame[x].str.replace(' of ', 'of', regex=False)
+        frame[[x+' F_1', x+' F_2']] = frame[x].str.split('  ', expand=True)
+        frame[[x+' landed F_1', x+' thrown F_1']] = frame[x+' F_1'].str.split('of', expand=True)
+        frame[[x+' landed F_2', x+' thrown F_2']] = frame[x+' F_2'].str.split('of', expand=True)
         
-        return frame[y+' landed F_1'],frame[y+' thrown F_1'],frame[y+' landed F_2'],frame[y+' thrown F_2']
+        return frame[x+' landed F_1'],frame[x+' thrown F_1'],frame[x+' landed F_2'],frame[x+' thrown F_2']
         
     # Get the significant strikes for each fighter
     sig_strikes = significant_strikes(fight_details_df.copy(), 'Sig. str.')
@@ -206,13 +206,15 @@ def get_fights():
     sig_percent_f2 = sig_strike_percent_split[1]
     sig_percent_f2 = sig_percent_f2.to_frame()
     
-    def sig_percent(frame,x):
-            frame['Sig. str. % '+x] = frame['Sig. str. % '+x].str.replace('%', '', regex=False)
-            frame['Sig. str. % '+x] = frame['Sig. str. % '+x].apply(pd.to_numeric, errors='coerce')
-            frame['Sig. str. % '+x] = frame['Sig. str. % '+x] / 100
+    # Convert the significant strikes % into decimal 
+    def sig_percent(frame,y):
+            frame['Sig. str. % '+y] = frame['Sig. str. % '+y].str.replace('%', '', regex=False)
+            frame['Sig. str. % '+y] = frame['Sig. str. % '+y].apply(pd.to_numeric, errors='coerce')
+            frame['Sig. str. % '+y] = frame['Sig. str. % '+y] / 100
             
-            return frame['Sig. str. % '+x]
-        
+            return frame['Sig. str. % '+y]
+    
+    # Get the significant strikes % for each fighter
     sig_strikes_percent_f1 = sig_percent(sig_percent_f1,'F_1')
     sig_strikes_percent_f2 = sig_percent(sig_percent_f2, 'F_2')
     fight_details_df['Sig. str. % F_1'] = sig_strikes_percent_f1
@@ -294,17 +296,17 @@ def get_fights():
     #-------------------------------------------------------------------------------------------------
     
     # Split out the needed columns from strikes into 2 to represent one for each fighter
-    def strikes_per_body_part(x,y):
-        x[y] = x[y].str.replace(' of ', 'of', regex=False)
-        x[[y+' F_1', y+' F_2']] = x[y].str.split('  ', expand=True)
-        x[[y+' landed F_1', y+' thrown F_1']] = x[y+' F_1'].str.split('of', expand=True)
-        x[y+' landed F_1'] = x[y+' landed F_1'].apply(pd.to_numeric, errors='coerce')
-        x[y+' thrown F_1'] = x[y+' thrown F_1'].apply(pd.to_numeric, errors='coerce')
-        x[[y+' landed F_2', y+' thrown F_2']] = x[y+' F_2'].str.split('of', expand=True)
-        x[y+' landed F_2'] = x[y+' landed F_2'].apply(pd.to_numeric, errors='coerce')
-        x[y+' thrown F_2'] = x[y+' thrown F_2'].apply(pd.to_numeric, errors='coerce')
+    def strikes_per_body_part(frame,x):
+        frame[x] = frame[x].str.replace(' of ', 'of', regex=False)
+        frame[[x+' F_1', x+' F_2']] = frame[x].str.split('  ', expand=True)
+        frame[[x+' landed F_1', x+' thrown F_1']] = frame[x+' F_1'].str.split('of', expand=True)
+        frame[x+' landed F_1'] = frame[x+' landed F_1'].apply(pd.to_numeric, errors='coerce')
+        frame[x+' thrown F_1'] = frame[x+' thrown F_1'].apply(pd.to_numeric, errors='coerce')
+        frame[[x+' landed F_2', x+' thrown F_2']] = frame[x+' F_2'].str.split('of', expand=True)
+        frame[x+' landed F_2'] = frame[x+' landed F_2'].apply(pd.to_numeric, errors='coerce')
+        frame[x+' thrown F_2'] = frame[x+' thrown F_2'].apply(pd.to_numeric, errors='coerce')
     
-        return x[y+' landed F_1'],x[y+' thrown F_1'],x[y+' landed F_2'],x[y+' thrown F_2']
+        return frame[x+' landed F_1'],frame[x+' thrown F_1'],frame[x+' landed F_2'],frame[x+' thrown F_2']
     
     # Get Head strikes
     strikes_head = strikes_per_body_part(fight_details_df.copy(), 'Head')
