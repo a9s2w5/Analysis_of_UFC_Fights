@@ -160,7 +160,7 @@ def get_fighters():
     fighters_df = fighters_df.dropna(axis=0, how='all')
     # Reset the Index
     fighters_df.reset_index(drop=True, inplace=True)
-    
+         
     return fighters_df
 
 #----------------------------------------------------------------------------------------
@@ -268,27 +268,43 @@ def get_fighter_more_details_URLs():
 # Get the additional Fighter details from the the created URL list
 def get_further_fighter_details():
     
+    # Set the details datafram and column headers
     fighter_details_df = pd.DataFrame(columns=('Name','Height','Weight','Reach','Stance','DOB'))
     
+    # scrape for the details urls on the site
     fighter_details_urls = get_fighter_more_details_URLs()
     
-    for url in tqdm(range(len(fighter_details_urls)), desc='Getting Fighter Details: '):
-        # Get the url and convert to lxml
-        page = requests.get(fighter_details_urls[url])
-        soup = BeautifulSoup(page.text, 'lxml')
-        soup
+    # prev urls visited and scraped
+    url_list = ('../url_lists/fighter_urls.csv')
+    prev_urls = pd.read_csv(url_list)
+    prev = list(prev_urls['URLs'])
     
-        # Get the title name present on the webpage
-        name__ = soup.find('span', {'class': 'b-content__title-highlight'})
-        name = name__.text.strip()
-        # Get the details list items
-        details__ = soup.find('ul', {'class': 'b-list__box-list'})
-        details = [a.text.replace('\n','').replace('--', '').replace(' ','') for a in details__.find_all('li')]
-        # append the name to the begining of the details list
-        details.insert(0, name)
-        # append each list as a row to the DataFrame
-        fighter_details_df.loc[len(fighter_details_df)] = details
-        time.sleep(1)
+    # set urls to the differnce between whats been scraped and whats new
+    urls_new = list(set(fighter_details_urls).difference(prev))
+    
+    if len(urls_new) < 1:
+        print('\nNo new Fighters to get information on.')
+    else:
+        for url in tqdm(range(len(fighter_details_urls)), desc='Getting Fighter Details: '):
+            # Get the url and convert to lxml
+            page = requests.get(fighter_details_urls[url])
+            soup = BeautifulSoup(page.text, 'lxml')
+            soup
+        
+            # Get the title name present on the webpage
+            name__ = soup.find('span', {'class': 'b-content__title-highlight'})
+            name = name__.text.strip()
+            # Get the details list items
+            details__ = soup.find('ul', {'class': 'b-list__box-list'})
+            details = [a.text.replace('\n','').replace('--', '').replace(' ','') for a in details__.find_all('li')]
+            # append the name to the begining of the details list
+            details.insert(0, name)
+            # append each list as a row to the DataFrame
+            fighter_details_df.loc[len(fighter_details_df)] = details
+            time.sleep(1)
+            
+        urls_scraped = pd.DataFrame(urls_new, columns=['URLs'])
+        urls_scraped.to_csv('../url_lists/fighter_urls.csv', mode='a', index=False, header=False)
     
     return fighter_details_df      
 
