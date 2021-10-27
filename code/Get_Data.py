@@ -199,15 +199,24 @@ def get_fights():
     
     #--------------------------------------------------------------------------------------------------------------------
     
-    # Split out Sig. str. % column into 2 to represent one for each fighter
-    fight_details_df[['Sig. str. % F_1', 'Sig. str. % F_2']]=fight_details_df['Sig. str. %'].str.split('  ', expand=True)
-    fight_details_df['Sig. str. % F_1'] = fight_details_df['Sig. str. % F_1'].str.replace('%', '', regex=False)
-    fight_details_df['Sig. str. % F_1'] = fight_details_df['Sig. str. % F_1'].apply(pd.to_numeric, errors='coerce')
-    fight_details_df['Sig. str. % F_1'] = fight_details_df['Sig. str. % F_1'] / 100
-    fight_details_df['Sig. str. % F_2'] = fight_details_df['Sig. str. % F_2'].str.replace('%', '', regex=False)
-    fight_details_df['Sig. str. % F_2'] = fight_details_df['Sig. str. % F_2'].apply(pd.to_numeric, errors='coerce')
-    fight_details_df['Sig. str. % F_2'] = fight_details_df['Sig. str. % F_2'] / 100
-    fight_details_df = fight_details_df.drop(['Sig. str. %'], axis=1)
+    # split out the significnt strike %'s
+    sig_strike_percent_split = split(fight_details_df.copy(), 'Sig. str. %')
+    sig_percent_f1 = sig_strike_percent_split[0]
+    sig_percent_f1 = sig_percent_f1.to_frame()
+    sig_percent_f2 = sig_strike_percent_split[1]
+    sig_percent_f2 = sig_percent_f2.to_frame()
+    
+    def sig_percent(frame,x):
+            frame['Sig. str. % '+x] = frame['Sig. str. % '+x].str.replace('%', '', regex=False)
+            frame['Sig. str. % '+x] = frame['Sig. str. % '+x].apply(pd.to_numeric, errors='coerce')
+            frame['Sig. str. % '+x] = frame['Sig. str. % '+x] / 100
+            
+            return frame['Sig. str. % '+x]
+        
+    sig_strikes_percent_f1 = sig_percent(sig_percent_f1,'F_1')
+    sig_strikes_percent_f2 = sig_percent(sig_percent_f2, 'F_2')
+    fight_details_df['Sig. str. % F_1'] = sig_strikes_percent_f1
+    fight_details_df['Sig. str. % F_2'] = sig_strikes_percent_f2
     
     #--------------------------------------------------------------------------------------------------------------------
 
