@@ -96,7 +96,7 @@ class Scraper:
                     links_ = list(dict.fromkeys(links__))
                     # add to the original blank list
                     links.extend(links_)
-                    time.sleep(3)
+                    time.sleep(1)
                     
               return links
             except ValueError:
@@ -226,7 +226,7 @@ def get_event_details():
         data = pd.read_html(event_detail_URLs[url])
         data[0]['Event'] = event_names_df['Name/date'][url]
         event_details_dfs.append(data)
-        time.sleep(3)
+        time.sleep(1)
     
      # Concatenate all collected DataFrames
     for i in tqdm(range(len(event_details_dfs)), desc="Creating DataFrame: "):
@@ -288,7 +288,7 @@ def get_further_fighter_details():
         details.insert(0, name)
         # append each list as a row to the DataFrame
         fighter_details_df.loc[len(fighter_details_df)] = details
-        time.sleep(3)
+        time.sleep(1)
     
     return fighter_details_df      
 
@@ -367,7 +367,7 @@ def get_event_fight_details():
             data[0]['Event'] = event
             # append to list of dataframes
             fight_details_dfs.append(data[0])
-            time.sleep(3)
+            time.sleep(1)
         except ValueError:
             pass
                                                                                         
