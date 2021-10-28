@@ -63,7 +63,10 @@ def get_fighters():
     fighter_details_df = scrp.get_further_fighter_details()
     
     if len(fighter_details_df) < 1:
-        return 
+        fighter_details_df = pd.DataFrame()
+        
+        return fighter_details_df
+    
     else:
         # Add a blank DOB column to the end of the DataFrame
         columns = len(fighters_df.columns)
@@ -136,8 +139,8 @@ def get_fighters():
 fighters_df = get_fighters()
 
 # If no new fighters to get info on print msg and do nothing
-if fighters_df == None:
-    print('Done checking Fighters.')
+if fighters_df.empty:
+    print('Done checking Fighters.\n')
 # Otherwise print the info and append to existing csv
 else:
     fighters_df.info()
@@ -160,7 +163,10 @@ def get_fights():
     fight_details_df = scrp.get_event_fight_details()
     
     if len(fight_details_df) < 1:
-        return 
+        fight_details_df = pd.DataFrame()
+        
+        return fight_details_df
+    
     else:
 
         #--------------------------------------------------------------------------------------------------------------------
@@ -431,7 +437,7 @@ def get_fights():
         frame = clean_dataframe(fight_details_df)    
         fight_details_df = frame
     
-    return fight_details_df
+        return fight_details_df
 
 #-------------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------------------------
@@ -441,7 +447,7 @@ def get_fights():
 fight_details_df = get_fights()
 
 # If no new fights to get info on print msg and do nothing
-if fight_details_df == None:
+if fight_details_df.empty:
     print('Done checking Fights')
 # Otherwise print the info and append to existing csv
 else:
